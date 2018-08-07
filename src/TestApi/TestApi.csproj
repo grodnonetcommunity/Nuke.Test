@@ -12,14 +12,13 @@
     <PackageReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
-  <Target Name="BuildWebApp" BeforeTargets="MakeLinkToWwwRoot">
+  <Target Name="BuildWebApp" BeforeTargets="MakeLinkToWwwRoot" Condition="!Exists('$(WwwRoot)') OR !Exists('$(WebAppDistPath)')">
     <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
     <Exec WorkingDirectory="$(WebAppPath)" Command="npm install" />
     <Exec WorkingDirectory="$(WebAppPath)" Command="npm run build" />
   </Target>
 
-  <Target Name="MakeLinkToWwwRoot" AfterTargets="AfterBuild">
-    <RemoveDir Directories="$(WwwRoot)" />
+  <Target Name="MakeLinkToWwwRoot" AfterTargets="AfterBuild" Condition="!Exists('$(WwwRoot)')">
     <Exec Command="mklink /J &quot;$(WwwRoot)&quot; &quot;$(WebAppDistPath)&quot;" />
   </Target>
 
@@ -28,7 +27,7 @@
     <RemoveDir Directories="$(WebAppDistPath)" />
   </Target>
 
-  <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(WebApp)node_modules') ">
+  <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build">
     <!-- Ensure Node.js is installed -->
     <Exec Command="node --version" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
