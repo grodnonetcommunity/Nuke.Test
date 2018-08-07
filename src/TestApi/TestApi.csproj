@@ -3,20 +3,37 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <WwwRoot>$(ProjectDir)wwwroot</WwwRoot>
-    <WebAppPath>..\webapp\dist</WebAppPath>
+    <WebAppPath>..\webapp\</WebAppPath>
+    <WebAppDistPath>$(WebAppPath)dist\</WebAppDistPath>
+    <DefaultItemExcludes>$(DefaultItemExcludes);wwwroot\**</DefaultItemExcludes>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
-  <Target Name="MakeLinkDistFiles" AfterTargets="AfterBuild">
+  <Target Name="BuildWebApp" BeforeTargets="MakeLinkToWwwRoot">
+    <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
+    <Exec WorkingDirectory="$(WebAppPath)" Command="npm install" />
+    <Exec WorkingDirectory="$(WebAppPath)" Command="npm run build" />
+  </Target>
+
+  <Target Name="MakeLinkToWwwRoot" AfterTargets="AfterBuild">
     <RemoveDir Directories="$(WwwRoot)" />
-    <Exec Command="mklink /J &quot;$(WwwRoot)&quot; &quot;$(WebAppPath)&quot;" />
+    <Exec Command="mklink /J &quot;$(WwwRoot)&quot; &quot;$(WebAppDistPath)&quot;" />
+  </Target>
+
+  <Target Name="RemoveWwwRoot" AfterTargets="AfterClean">
+    <RemoveDir Directories="$(WwwRoot)" />
+    <RemoveDir Directories="$(WebAppDistPath)" />
+  </Target>
+
+  <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(WebApp)node_modules') ">
+    <!-- Ensure Node.js is installed -->
+    <Exec Command="node --version" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
   </Target>
 
 </Project>
