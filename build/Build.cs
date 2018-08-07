@@ -16,8 +16,7 @@ class Build : NukeBuild
     [Solution] readonly Solution Solution;
     [GitRepository] readonly GitRepository GitRepository;
 
-    AbsolutePath SourceDirectory => RootDirectory / "src";
-    AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
+    public override AbsolutePath SourceDirectory => RootDirectory / "src";
 
     Target Clean => _ => _
         .Executes(() =>
@@ -47,7 +46,7 @@ class Build : NukeBuild
                 .SetNodeReuse(IsLocalBuild));
         });
 
-    private Target Pack => _ => _
+    Target Pack => _ => _
         .DependsOn(Compile)
         .Executes(() =>
         {
