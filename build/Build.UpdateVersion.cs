@@ -9,6 +9,7 @@ using Nuke.Common;
 using Nuke.Common.IO;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.IO.XmlTasks;
+using static Nuke.Common.IO.SerializationTasks;
 
 partial class Build
 {
@@ -19,6 +20,8 @@ partial class Build
 
     AbsolutePath AssemblyInfoProps => SolutionDirectory / "AssemblyInfo.props";
 
+    AbsolutePath WebAppDirectory => SolutionDirectory / "webapp";
+
     Target UpdateVersion => _ => _
         .Requires(() => Sprint)
         .Requires(() => NewVersion)
@@ -26,6 +29,8 @@ partial class Build
         {
             UpdateSprint();
             UpdateAssemblyInfo();
+            UpdateJson(WebAppDirectory / "package.json");
+            UpdateJson(WebAppDirectory / "package-lock.json");
         });
 
     void UpdateSprint()
@@ -42,6 +47,13 @@ partial class Build
         XmlPoke(AssemblyInfoProps, "/Project/PropertyGroup/Version", BuildVariables.Version);
         XmlPoke(AssemblyInfoProps, "/Project/PropertyGroup/AssemblyVersion", BuildVariables.Version);
         XmlPoke(AssemblyInfoProps, "/Project/PropertyGroup/FileVersion", BuildVariables.FileVersion);
+    }
+
+    void UpdateJson(string path)
+    {
+        var json = JsonDeserializeFromFile<dynamic>(path);
+        json.version = BuildVariables.Version;
+        JsonSerializeToFile(json, path);
     }
 
     private class SprintRewriter : CSharpSyntaxRewriter
