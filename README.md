@@ -199,4 +199,8 @@ We will use [Vue](https://vuejs.org). Install [vue cli](https://cli.vuejs.org) t
 ```cmd
 npm install -g @vue/cli
 vue create webapp
+npm run build
 ```
+
+And copy `dist` to `TestApi/wwwroot` folder
+

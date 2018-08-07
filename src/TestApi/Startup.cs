@@ -42,6 +42,8 @@ namespace TestApi
 
             app.UseHttpsRedirection();
             app.UseMvc();
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
         }
     }
 }
