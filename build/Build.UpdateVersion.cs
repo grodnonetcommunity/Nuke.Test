@@ -1,23 +1,31 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Nuke.Common;
+using Nuke.Common.IO;
 using static Nuke.Common.IO.PathConstruction;
+using static Nuke.Common.IO.XmlTasks;
 
 partial class Build
 {
-    [Parameter]
-    int? Sprint;
+    [Parameter] int? Sprint;
+    [Parameter] string NewVersion;
 
     AbsolutePath BuildVariablesFilePath => EnvironmentInfo.BuildProjectDirectory / $"{nameof(BuildVariables)}.cs";
 
+    AbsolutePath AssemblyInfoProps => SolutionDirectory / "AssemblyInfo.props";
+
     Target UpdateVersion => _ => _
         .Requires(() => Sprint)
+        .Requires(() => NewVersion)
         .Executes(() =>
         {
             UpdateSprint();
+            UpdateAssemblyInfo();
         });
 
     void UpdateSprint()
@@ -27,6 +35,13 @@ partial class Build
         syntaxTree = syntaxTree.WithRootAndOptions(SprintRewriter.RewriteSprint(syntaxTree.GetRoot(), Sprint.Value), new CSharpParseOptions());
 
         File.WriteAllText(BuildVariablesFilePath, syntaxTree.ToString(), Encoding.UTF8);
+    }
+
+    void UpdateAssemblyInfo()
+    {
+        XmlPoke(AssemblyInfoProps, "/Project/PropertyGroup/Version", BuildVariables.Version);
+        XmlPoke(AssemblyInfoProps, "/Project/PropertyGroup/AssemblyVersion", BuildVariables.Version);
+        XmlPoke(AssemblyInfoProps, "/Project/PropertyGroup/FileVersion", BuildVariables.FileVersion);
     }
 
     private class SprintRewriter : CSharpSyntaxRewriter
@@ -41,7 +56,7 @@ partial class Build
 
         public override SyntaxNode VisitPropertyDeclaration(PropertyDeclarationSyntax node)
         {
-            if (node.Identifier.Text != nameof(BuildVariables.Sprint))
+            if (node.Identifier.Text != nameof(global::BuildVariables.Sprint))
             {
                 return base.VisitPropertyDeclaration(node);
             }

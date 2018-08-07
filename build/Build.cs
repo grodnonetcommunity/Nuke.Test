@@ -14,6 +14,7 @@ partial class Build : NukeBuild
 
     [Solution] readonly Solution Solution;
     [GitRepository] readonly GitRepository GitRepository;
+    [BuildVariables] readonly BuildVariables BuildVariables;
 
     public override AbsolutePath SourceDirectory => RootDirectory / "src";
 
