@@ -10,6 +10,7 @@ using Nuke.Common.IO;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.IO.XmlTasks;
 using static Nuke.Common.IO.SerializationTasks;
+using static GitTasks;
 
 partial class Build
 {
@@ -29,8 +30,29 @@ partial class Build
         {
             UpdateSprint();
             UpdateAssemblyInfo();
-            UpdateJson(WebAppDirectory / "package.json");
-            UpdateJson(WebAppDirectory / "package-lock.json");
+
+            var jsonFiles = new[]
+            {
+                WebAppDirectory / "package.json",
+                WebAppDirectory / "package-lock.json",
+            };
+
+            foreach (var jsonFile in jsonFiles)
+            {
+                UpdateJson(jsonFile);
+            }
+
+            var changes = new[]
+                {
+                    AssemblyInfoProps,
+                    BuildVariablesFilePath,
+                }
+                .Concat(jsonFiles)
+                .Select(p => p.ToRelative(RootDirectory).ToString())
+                .ToList();
+
+            GitAdd(RootDirectory, changes);
+            GitCommit(RootDirectory, $"build(version): update version to {NewVersion} and sprint {Sprint}");
         });
 
     void UpdateSprint()
