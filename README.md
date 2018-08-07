@@ -189,3 +189,18 @@ We can run build by powershell as well
 ```cmd
 powershell ./build.ps1
 ```
+
+## Step 3
+
+Add front-end.
+
+We will use [Vue](https://vuejs.org). Install [vue cli](https://cli.vuejs.org) to simplify development.
+
+```cmd
+npm install -g @vue/cli
+vue create webapp
+npm run build
+```
+
+And copy `dist` to `TestApi/wwwroot` folder
+
