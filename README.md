@@ -184,3 +184,8 @@ Check `./artifacts` folder it is empty.
 
 Because default nuke target doesn't copy artifacts, it just build the solution.
 
+We can run build by powershell as well
+
+```cmd
+powershell ./build.ps1
+```
