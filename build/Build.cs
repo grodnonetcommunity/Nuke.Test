@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Nuke.Common;
 using Nuke.Common.Git;
 using Nuke.Common.ProjectModel;
@@ -16,10 +17,15 @@ partial class Build : NukeBuild
 
     public override AbsolutePath SourceDirectory => RootDirectory / "src";
 
+    MSBuildSettings MsBuildSettings => DefaultMSBuild;
+
     Target Clean => _ => _
         .Executes(() =>
         {
-            DeleteDirectories(GlobDirectories(SourceDirectory, "**/bin", "**/obj"));
+            foreach (var project in Solution.Projects.Where(p => p.Directory.ToString() != EnvironmentInfo.BuildProjectDirectory.ToString()))
+            {
+                DeleteDirectories(GlobDirectories(project.Directory, "bin", "obj"));
+            }
             EnsureCleanDirectory(ArtifactsDirectory);
         });
 
@@ -27,8 +33,7 @@ partial class Build : NukeBuild
         .DependsOn(Clean)
         .Executes(() =>
         {
-            MSBuild(s => s
-                .SetTargetPath(SolutionFile)
+            MSBuild(s => MsBuildSettings
                 .SetTargets("Restore"));
         });
 
@@ -36,20 +41,14 @@ partial class Build : NukeBuild
         .DependsOn(Restore)
         .Executes(() =>
         {
-            MSBuild(s => s
-                .SetTargetPath(SolutionFile)
-                .SetTargets("Rebuild")
-                .SetConfiguration(Configuration)
-                .SetMaxCpuCount(Environment.ProcessorCount)
-                .SetNodeReuse(IsLocalBuild));
+            MSBuild(s => MsBuildSettings);
         });
 
     Target Pack => _ => _
         .DependsOn(Compile)
         .Executes(() =>
         {
-            MSBuild(s => s
-                .SetTargetPath(SolutionFile)
+            MSBuild(s => MsBuildSettings
                 .SetTargets("Restore", "Pack")
                 .SetPackageOutputPath(ArtifactsDirectory)
                 .SetConfiguration(Configuration)
