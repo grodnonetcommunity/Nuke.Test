@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -12,6 +12,8 @@
   <ItemGroup>
     <PackageReference Include="Nuke.Common" Version="0.6.0" />
     <PackageReference Include="GitVersion.CommandLine" Version="3.6.5" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="2.8.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.8.0" />
   </ItemGroup>
 
   <ItemGroup>
