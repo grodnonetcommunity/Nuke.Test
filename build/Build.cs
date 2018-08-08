@@ -25,5 +25,7 @@ partial class Build : NukeBuild
 
     Target Compile => _ => _
         .DependsOn(FrontEndCompile)
-        .DependsOn(BackendCompile);
+        .DependsOn(BackendCompile)
+        .DependsOn(BackendUnitTests)
+        .DependsOn(FrontEndUnitTests);
 }
