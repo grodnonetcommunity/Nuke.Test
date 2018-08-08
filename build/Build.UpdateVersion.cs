@@ -10,6 +10,7 @@ using Nuke.Common.IO;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.IO.XmlTasks;
 using static Nuke.Common.IO.SerializationTasks;
+using static Nuke.Common.Tools.Git.GitTasks;
 using static GitTasks;
 
 partial class Build
@@ -28,6 +29,12 @@ partial class Build
         .Requires(() => NewVersion)
         .Executes(() =>
         {
+            if (!GitHasCleanWorkingCopy(RootDirectory))
+            {
+                Logger.Error("There are uncommitted changes");
+                return;
+            }
+
             UpdateSprint();
             UpdateAssemblyInfo();
 
