@@ -27,4 +27,11 @@ partial class Build
         {
             NpmRun(s => s.SetWorkingDirectory(WebApp).SetCommand("build"));
         });
+
+    Target FrontEndUnitTests => _ => _
+        .DependsOn(FrontEndCompile)
+        .Executes(() =>
+        {
+            NpmRun(s => s.SetWorkingDirectory(WebApp).SetCommand("test:unit"));
+        });
 }
