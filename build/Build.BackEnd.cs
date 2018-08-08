@@ -1,5 +1,6 @@
 using System.Linq;
 using Nuke.Common;
+using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.MSBuild;
 using Nuke.Common.Tools.Nunit;
 using static Nuke.Common.IO.FileSystemTasks;
@@ -50,7 +51,12 @@ partial class Build : NukeBuild
         .DependsOn(BackendCompile)
         .Executes(() =>
         {
-            var unitTests = GlobFiles(SourceDirectory, "**/bin/**/*.UnitTests.dll").ToList();
-            NunitTasks.Nunit3(unitTests);
+            var unitTestProjects = GlobFiles(SourceDirectory, "Tests/**/*.UnitTests.*proj").ToList();
+            foreach (var unitTestProject in unitTestProjects)
+            {
+                DotNetTasks.DotNetTest(s => s
+                    .SetProjectFile(unitTestProject)
+                    .EnableNoBuild());
+            }
         });
 }
