@@ -1,6 +1,7 @@
 using System.Linq;
 using Nuke.Common;
 using Nuke.Common.Tools.MSBuild;
+using Nuke.Common.Tools.Nunit;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.Tools.MSBuild.MSBuildTasks;
 using static Nuke.Common.IO.PathConstruction;
@@ -43,5 +44,13 @@ partial class Build : NukeBuild
                 .SetPackageOutputPath(ArtifactsDirectory)
                 .SetConfiguration(Configuration)
                 .EnableIncludeSymbols());
+        });
+
+    Target BackendUnitTests => _ => _
+        .DependsOn(BackendCompile)
+        .Executes(() =>
+        {
+            var unitTests = GlobFiles(SourceDirectory, "**/bin/**/*.UnitTests.dll").ToList();
+            NunitTasks.Nunit3(unitTests);
         });
 }
