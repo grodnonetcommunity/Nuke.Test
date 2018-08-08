@@ -1,3 +1,4 @@
+using System.Linq;
 using Nuke.Common;
 using Nuke.Common.Git;
 using Nuke.Common.ProjectModel;
@@ -15,12 +16,14 @@ partial class Build : NukeBuild
     public override AbsolutePath SourceDirectory => RootDirectory / "src";
 
     Target Clean => _ => _
+        .DependsOn(BackendClean)
+        .DependsOn(FrontEndClean)
         .Executes(() =>
         {
-            foreach (var project in Solution.Projects.Where(p => p.Directory.ToString() != EnvironmentInfo.BuildProjectDirectory.ToString()))
-            {
-                DeleteDirectories(GlobDirectories(project.Directory, "bin", "obj"));
-            }
             EnsureCleanDirectory(ArtifactsDirectory);
         });
+
+    Target Compile => _ => _
+        .DependsOn(FrontEndCompile)
+        .DependsOn(BackendCompile);
 }

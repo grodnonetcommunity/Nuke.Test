@@ -8,6 +8,12 @@ partial class Build
 {
     AbsolutePath WebApp => SourceDirectory / "webapp";
 
+    Target FrontEndClean => _ => _
+        .Executes(() =>
+        {
+            NpmRun(s => s.SetWorkingDirectory(WebApp).SetCommand("clean"));
+        });
+
     Target FrontEndNpmInstall => _ => _
         .Executes(() =>
         {
@@ -15,6 +21,7 @@ partial class Build
         });
 
     Target FrontEndCompile => _ => _
+        .DependsOn(FrontEndClean)
         .DependsOn(FrontEndNpmInstall)
         .Executes(() =>
         {
