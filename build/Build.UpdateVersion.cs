@@ -103,8 +103,7 @@ partial class Build
             }
 
             var sprintLiteralExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(Sprint))
-                .WithLeadingTrivia(node.ExpressionBody.GetLeadingTrivia())
-                .WithTrailingTrivia(node.ExpressionBody.GetTrailingTrivia());
+                .WithTriviaFrom(node.ExpressionBody.Expression);
             var sprintExpressionBody = node.ExpressionBody.WithExpression(sprintLiteralExpressionSyntax);
 
             return node.WithExpressionBody(sprintExpressionBody);
